@@ -1,7 +1,7 @@
 import 'package:photo_album/data/models/comentario.dart';
 import 'package:photo_album/data/models/foto.dart';
 
-abstract class FotosRepository {
+abstract class FotoRepository {
   Future<List<Foto>> listar();
   Future<List<Foto>> listarFotosPorAlbum(int albumId);
   Future<Foto> selecionar(int id);
