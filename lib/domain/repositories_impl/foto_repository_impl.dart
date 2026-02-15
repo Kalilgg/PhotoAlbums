@@ -7,9 +7,7 @@ import 'package:photo_album/domain/exceptions/repository_exception.dart';
 class FotoRepositoryImpl implements FotoRepository {
   final FotoDataSource _dataSourceFotos;
 
-  FotoRepositoryImpl(
-    this._dataSourceFotos,
-  );
+  FotoRepositoryImpl(this._dataSourceFotos);
 
   @override
   Future<List<Foto>> listar() async {

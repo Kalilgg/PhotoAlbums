@@ -9,11 +9,11 @@ class ComentarioRepositoryImpl implements ComentarioRepository {
   ComentarioRepositoryImpl(this._dataSource);
 
   @override
-  Future<Comentario> adicionar(int fotoId, Comentario comentario) async {
+  Future<Comentario> adicionar(Comentario comentario) async {
     try {
       final modelOut = comentario.toModelOut();
       final response = await _dataSource
-          .adicionar(fotoId, modelOut)
+          .adicionar(comentario.postId, modelOut)
           .then((e) => e.toEntity());
       return response;
     } catch (e) {

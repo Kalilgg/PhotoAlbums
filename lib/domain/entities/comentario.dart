@@ -1,9 +1,9 @@
 class Comentario {
-  int id;
+  int? id;
   String texto;
   String titulo;
   int postId;
-  String emailUsario;
+  String? emailUsario;
 
-  Comentario({required this.id, required this.texto, required this.postId, required this.titulo, required this.emailUsario});
+  Comentario({this.id, required this.texto, required this.postId, required this.titulo, this.emailUsario});
 }
