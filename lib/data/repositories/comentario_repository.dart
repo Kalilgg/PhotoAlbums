@@ -1,4 +1,6 @@
+import 'package:photo_album/domain/entities/comentario.dart';
+
 abstract class ComentarioRepository {
-  Future<List<String>> listar(int fotoId);
-  Future<String> adicionar(int fotoId);
+  Future<List<Comentario>> listar(int fotoId);
+  Future<Comentario> adicionar(int fotoId, Comentario comentario);
 }

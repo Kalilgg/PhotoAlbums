@@ -5,7 +5,7 @@ import 'package:photo_album/data/model_in/album_model_in.dart';
 class AlbumDataSourceImpl extends DioDataSource implements AlbumDataSource{
   
   AlbumDataSourceImpl(super.dio);
-  String _url = '/albums';
+  final String _url = '/albums';
   
   @override
   Future<List<AlbumModelIn>> listarPorAutor(int autorId) {

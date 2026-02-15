@@ -6,7 +6,6 @@ import 'package:photo_album/domain/exceptions/repository_exception.dart';
 
 class AutorRepositoryImpl implements AutorRepository {
   final AutorDataSource _dataSource;
-
   AutorRepositoryImpl(this._dataSource);
 
   @override

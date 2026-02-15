@@ -5,7 +5,7 @@ import 'package:photo_album/domain/entities/album.dart';
 import 'package:photo_album/domain/exceptions/repository_exception.dart';
 
 class AlbumRepositoryImpl implements AlbumRepository{
-  AlbumDataSource _dataSource;
+  final AlbumDataSource _dataSource;
   AlbumRepositoryImpl(this._dataSource);
 
 

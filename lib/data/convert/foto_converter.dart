@@ -1,20 +1,17 @@
-
-import 'package:photo_album/data/model_in/autor_model_in.dart';
 import 'package:photo_album/data/model_in/foto_model_in.dart';
 import 'package:photo_album/data/model_in/post_model_in.dart';
 import 'package:photo_album/domain/entities/foto.dart';
 
 extension FotoConverter on FotoModelIn {
   Foto toEntity({
-    required PostModelIn post, 
-    required AutorModelIn autor,
-  }) {
+    required PostModelIn post
+    }) {
     return Foto(
       id: this.id,
       titulo: this.title,
-      descricao: post.body, 
+      descricao: post.body,
       albumId: this.albumId,
-      autorId: autor.id,
+      autorId: post.userId,
       imgGrande: this.url,
       imgPequena: this.thumbnailUrl,
     );
@@ -29,5 +26,4 @@ extension FotoConverter on FotoModelIn {
       imgPequena: this.thumbnailUrl,
     );
   }
-
 }
