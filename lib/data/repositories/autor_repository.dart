@@ -1,3 +1,5 @@
+import 'package:photo_album/domain/entities/autor.dart';
+
 abstract class AutorRepository {
-  Future<String> selecionar(int id);
+  Future<Autor> selecionar(int id);
 }

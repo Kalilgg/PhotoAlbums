@@ -1,5 +1,5 @@
-import 'package:photo_album/data/models/comentario.dart';
-import 'package:photo_album/data/models/foto.dart';
+import 'package:photo_album/domain/entities/comentario.dart';
+import 'package:photo_album/domain/entities/foto.dart';
 
 abstract class FotoRepository {
   Future<List<Foto>> listar();
