@@ -14,10 +14,17 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<FotoController>().carregarFotos();
     });
@@ -26,7 +33,17 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    
+    if (currentScroll >= (maxScroll * 0.9)) {
+      context.read<FotoController>().carregarMaisFotos();
+    }
   }
 
   @override
@@ -138,7 +155,7 @@ class _MainPageState extends State<MainPage> {
               }
               return RefreshIndicator(
                 onRefresh: () async {
-                  await controller.carregarFotos();
+                  await controller.recarregarFotos();
                 },
                 child: ListView.builder(
                   padding: const EdgeInsets.only(bottom: 24),

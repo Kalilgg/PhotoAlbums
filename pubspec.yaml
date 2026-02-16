@@ -39,6 +39,8 @@ dependencies:
   provider: ^6.1.5+1
   dio: ^5.9.1
   logger: ^2.6.2
+  string_similarity: ^2.1.1
+  native_dio_adapter: ^1.5.1
 
 dev_dependencies:
   flutter_test:

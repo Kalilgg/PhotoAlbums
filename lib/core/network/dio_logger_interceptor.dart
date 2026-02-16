@@ -16,8 +16,6 @@ class DioLoggerInterceptor extends Interceptor {
       - Query Params: ${options.queryParameters}
       - Body: ${options.data}
     ''');
-
-    // Call the super class to continue handling the request.
     super.onRequest(options, handler);
   }
 
@@ -29,8 +27,6 @@ class DioLoggerInterceptor extends Interceptor {
       - Headers: ${response.headers}
       - Body: ${response.data}
     ''');
-
-    // Call the super class to continue handling the response.
     super.onResponse(response, handler);
   }
 
@@ -42,8 +38,6 @@ class DioLoggerInterceptor extends Interceptor {
       - Message: ${err.message}
       - Stack Trace: ${err.stackTrace}
     ''');
-
-    // Call the super class to continue handling the error.
     super.onError(err, handler);
   }
 }

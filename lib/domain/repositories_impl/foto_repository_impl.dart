@@ -10,9 +10,9 @@ class FotoRepositoryImpl implements FotoRepository {
   FotoRepositoryImpl(this._dataSourceFotos);
 
   @override
-  Future<List<Foto>> listar() async {
+  Future<List<Foto>> listar(int comeco, int quantidade) async {
     try {
-      final responses = await _dataSourceFotos.listar();
+      final responses = await _dataSourceFotos.listar(comeco, quantidade);
       final postResponses = await Future.wait(
         responses.map((foto) => _dataSourceFotos.selecionarPost(foto.id)),
       );

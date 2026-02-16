@@ -11,6 +11,10 @@ class FotoController {
 
   FotoController(this._fotoRepository, this._comentarioRepository);
 
+  int _comeco = 0;
+  final int _quantidade = 20;
+  final hasMore = signal(true);
+  final isLoadingMore = signal(false);
   final _todasFotos = signal<List<Foto>>([]);
   Signal<String> termoBusca = signal('');
   void limparFiltro() {
@@ -22,15 +26,23 @@ class FotoController {
     final lista = _todasFotos.value;
 
     if (termo.isEmpty) return lista;
-    final listaOrdenada = lista
-    .map((foto) => {
-          'foto': foto,
-          'rating': StringSimilarity.compareTwoStrings(termo, foto.titulo)
-        })
-    .toList()
-  ..sort((a, b) => (b['rating'] as double).compareTo(a['rating'] as double));
+    final listaOrdenada =
+        lista
+            .map(
+              (foto) => {
+                'foto': foto,
+                'rating': StringSimilarity.compareTwoStrings(
+                  termo,
+                  foto.titulo,
+                ),
+              },
+            )
+            .toList()
+          ..sort(
+            (a, b) => (b['rating'] as double).compareTo(a['rating'] as double),
+          );
 
-return listaOrdenada.map((e) => e['foto'] as Foto).take(20).toList();
+    return listaOrdenada.map((e) => e['foto'] as Foto).take(20).toList();
   });
 
   final isLoading = signal(false);
@@ -43,13 +55,26 @@ return listaOrdenada.map((e) => e['foto'] as Foto).take(20).toList();
     isLoading.value = true;
     error.value = null;
 
-    final resultado = await _fotoRepository.listar();
+    final resultado = await _fotoRepository.listar(_comeco, _quantidade);
     _todasFotos.value = resultado;
     if (resultado.isEmpty) {
       error.value = "Nenhuma foto encontrada.";
     }
+    _comeco += _quantidade;
     isLoading.value = false;
+  }
 
+  Future<void> carregarMaisFotos() async {
+    if (!hasMore.value) return;
+    isLoadingMore.value = true;
+    final novosItens = await _fotoRepository.listar(_comeco, _quantidade);
+
+    if (novosItens.isEmpty) {
+      hasMore.value = false;
+    } else {
+      fotos.internalValue = [...fotos.value, ...novosItens];
+      _comeco += _quantidade;
+    }
   }
 
   void filtrar(String query) {
@@ -71,8 +96,22 @@ return listaOrdenada.map((e) => e['foto'] as Foto).take(20).toList();
       emailUsario: comentario.emailUsario,
       texto: comentario.texto,
     );
-    final comentarioEnviado = await _comentarioRepository.adicionar(novoComentario);
+    final comentarioEnviado = await _comentarioRepository.adicionar(
+      novoComentario,
+    );
     comentarios.value.add(comentarioEnviado);
   }
 
+  Future<void> recarregarFotos() async {
+    final resultado = await _fotoRepository.listar(0, _quantidade);
+    if (resultado.isEmpty) {
+      error.value = "Nenhuma foto encontrada.";
+    } else {
+      _todasFotos.value = [];
+      hasMore.value = true;
+      _todasFotos.value = resultado;
+      _comeco += _quantidade;
+      isLoading.value = false;
+    }
+  }
 }

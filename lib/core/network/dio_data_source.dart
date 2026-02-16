@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:photo_album/domain/exceptions/data_source_exception.dart';
 
 abstract class DioDataSource {
@@ -6,6 +7,7 @@ abstract class DioDataSource {
   final String _baseUrl = 'https://jsonplaceholder.typicode.com';
 
   DioDataSource(this._dio) {
+    _dio.httpClientAdapter = NativeAdapter();
     _dio.options.baseUrl = _baseUrl;
     _dio.options.connectTimeout = Duration(seconds: 10);
     _dio.options.receiveTimeout = Duration(seconds: 10);
@@ -13,7 +15,6 @@ abstract class DioDataSource {
     _dio.options.headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     };
   }
 

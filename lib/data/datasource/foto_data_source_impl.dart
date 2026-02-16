@@ -8,9 +8,11 @@ class FotoDataSourceImpl extends DioDataSource implements FotoDataSource {
   String url = '/photos';
 
   @override
-  Future<List<FotoModelIn>> listar() {
-    return getAsList(url).then((value) 
-    => value.map((e) => FotoModelIn.fromJson(e)).toList());
+  Future<List<FotoModelIn>> listar(int comeco, int quantidade) {
+    return getAsList(url, queryParameters: {
+      '_start': comeco,
+      '_limit': quantidade,
+    }).then((value) => value.map((e) => FotoModelIn.fromJson(e)).toList());
   }
 
   @override
