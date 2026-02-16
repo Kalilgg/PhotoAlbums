@@ -93,7 +93,7 @@ class CardFoto extends StatelessWidget {
                     const SizedBox(height: 6),
 
                     Text(
-                      foto.descricao ?? 'Sem descrição disponível.',
+                      foto.descricao,
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey[600],

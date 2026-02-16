@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:photo_album/presentation/detalhes_foto/detalhes_foto_page.dart';
 import 'package:photo_album/presentation/main_page/card_foto.dart';
-import 'package:photo_album/presentation/main_page/foto_controller.dart';
+import 'package:photo_album/presentation/detalhes_foto/foto_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -13,43 +13,20 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final TextEditingController _searchController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-
+  
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<FotoController>().carregarFotos();
+      final controller = context.read<FotoController>();
+      if (controller.fotos.value.isEmpty && !controller.isLoading.value) {
+        controller.carregarFotos();
+      }
     });
   }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.position.pixels;
-    
-    if (currentScroll >= (maxScroll * 0.5) && !context.read<FotoController>().isLoadingMore.value) {
-      context.read<FotoController>().carregarMaisFotos();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = context.read<FotoController>();
-
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -70,7 +47,7 @@ class _MainPageState extends State<MainPage> {
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: TextField(
-              controller: _searchController,
+              controller: controller.getSearchController,
               decoration: InputDecoration(
                 hintText: 'Pesquisar foto, álbum ou autor...',
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
@@ -84,35 +61,43 @@ class _MainPageState extends State<MainPage> {
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.clear, color: Colors.grey),
                   onPressed: () {
-                    _searchController.clear();
+                    controller.getSearchController.clear();
                     controller.limparFiltro();
-                    controller.filtrar(''); 
-                    controller.carregarFotos();
+                    controller.filtrar('');
                   },
                 ),
               ),
               onChanged: (valor) {
-                controller.filtrar(_searchController.text);
+                controller.filtrar(valor);
               },
             ),
           ),
           const SizedBox(height: 10),
           Expanded(
             child: Watch((_) {
-              if (controller.isLoading.value && controller.fotos.value.isEmpty) {
+              final isLoading = controller.isLoading.value;
+              final error = controller.error.value;
+              final fotos = controller.fotos.value;
+              final semFotos = controller.semFotos;
+
+              if (isLoading && semFotos.value) {
                 return const Center(
                   child: CircularProgressIndicator(strokeWidth: 2),
                 );
               }
 
-              if (controller.error.value != null) {
+              if (error != null && semFotos.value) {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, size: 60, color: Colors.redAccent),
+                        const Icon(
+                          Icons.error_outline,
+                          size: 60,
+                          color: Colors.redAccent,
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           "Ops! Ocorreu um erro.",
@@ -120,7 +105,7 @@ class _MainPageState extends State<MainPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          controller.error.value!,
+                          error,
                           textAlign: TextAlign.center,
                           style: const TextStyle(color: Colors.grey),
                         ),
@@ -129,21 +114,22 @@ class _MainPageState extends State<MainPage> {
                           onPressed: () => controller.carregarFotos(),
                           icon: const Icon(Icons.refresh),
                           label: const Text("Tentar Novamente"),
-                        )
+                        ),
                       ],
                     ),
                   ),
                 );
               }
-
-              final fotos = controller.fotos.value;
-
-              if (fotos.isEmpty) {
+              if (semFotos.value) {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.image_not_supported_outlined, size: 64, color: Colors.grey[400]),
+                      Icon(
+                        Icons.image_not_supported_outlined,
+                        size: 64,
+                        color: Colors.grey[400],
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         "Nenhuma foto encontrada.",
@@ -153,23 +139,33 @@ class _MainPageState extends State<MainPage> {
                   ),
                 );
               }
+              final isLoadingMore = controller.isLoadingMore.value;
               return RefreshIndicator(
                 onRefresh: () async {
                   await controller.recarregarFotos();
                 },
                 child: ListView.builder(
                   padding: const EdgeInsets.only(bottom: 24),
-                  itemCount: fotos.length,
+                  itemCount: fotos.length + (isLoadingMore ? 1 : 0),
+                  controller: controller.scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
+                    if (index == fotos.length && isLoadingMore) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    }
                     final foto = fotos[index];
-
                     return CardFoto(
                       foto: foto,
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DetalheFotoPage(foto: foto),
+                            builder: (context) => DetalheFotoPage(foto),
                           ),
                         );
                       },
