@@ -105,6 +105,13 @@ class CardFoto extends StatelessWidget {
                   ],
                 ),
               ),
+              Text( 
+                      "ID: ${foto.id}",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
             ],
           ),
         ),

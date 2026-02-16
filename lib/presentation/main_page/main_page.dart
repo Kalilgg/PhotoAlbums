@@ -41,7 +41,7 @@ class _MainPageState extends State<MainPage> {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     
-    if (currentScroll >= (maxScroll * 0.9)) {
+    if (currentScroll >= (maxScroll * 0.5) && !context.read<FotoController>().isLoadingMore.value) {
       context.read<FotoController>().carregarMaisFotos();
     }
   }
@@ -99,7 +99,7 @@ class _MainPageState extends State<MainPage> {
           const SizedBox(height: 10),
           Expanded(
             child: Watch((_) {
-              if (controller.isLoading.value) {
+              if (controller.isLoading.value && controller.fotos.value.isEmpty) {
                 return const Center(
                   child: CircularProgressIndicator(strokeWidth: 2),
                 );
