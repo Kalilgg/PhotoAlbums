@@ -5,7 +5,7 @@ class ListarPosts {
   final FotoRepository repository;
   ListarPosts(this.repository);
 
-  Future<List<Foto>> call() async {
-    return await repository.listar();
+  Future<List<Foto>> call(int comeco, int quantidade) async {
+    return await repository.listar(comeco, quantidade);
   }
 }
