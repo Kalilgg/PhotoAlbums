@@ -7,6 +7,14 @@ abstract class DioDataSource {
 
   DioDataSource(this._dio) {
     _dio.options.baseUrl = _baseUrl;
+    _dio.options.connectTimeout = Duration(seconds: 10);
+    _dio.options.receiveTimeout = Duration(seconds: 10);
+    _dio.options.sendTimeout = Duration(seconds: 10);
+    _dio.options.headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    };
   }
 
   DataSourceException _treatException(Object exception) {
