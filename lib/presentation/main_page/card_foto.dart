@@ -5,11 +5,7 @@ class CardFoto extends StatelessWidget {
   final Foto foto;
   final VoidCallback onTap;
 
-  const CardFoto({
-    super.key,
-    required this.foto,
-    required this.onTap,
-  });
+  const CardFoto({super.key, required this.foto, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +26,7 @@ class CardFoto extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Hero(
-                tag: 'foto_${foto.id}', 
+                tag: 'foto_${foto.id}',
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
@@ -45,15 +41,26 @@ class CardFoto extends StatelessWidget {
                         height: 80,
                         color: Colors.grey[100],
                         child: const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2)),
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
                       );
                     },
                     errorBuilder: (context, error, stackTrace) {
+                      debugPrint(
+                        "LOG_IMAGEM: Erro na URL ${foto.imgPequena} -> $error",
+                      );
+
                       return Container(
                         width: 80,
                         height: 80,
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.broken_image, color: Colors.grey),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Colors.grey,
+                        ),
                       );
                     },
                   ),
@@ -75,8 +82,8 @@ class CardFoto extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                                        Text(
-                      "Álbum: ${foto.albumId}", 
+                    Text(
+                      "Álbum: ${foto.albumId}",
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.blue[700],

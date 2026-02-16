@@ -13,7 +13,16 @@ class FotoRepositoryImpl implements FotoRepository {
   Future<List<Foto>> listar() async {
     try {
       final responses = await _dataSourceFotos.listar();
-      final fotos = responses.map((e) => e.toEntitySemPostEAutor()).toList();
+      final postResponses = await Future.wait(
+        responses.map((foto) => _dataSourceFotos.selecionarPost(foto.id)),
+      );
+      final fotos = responses
+          .map(
+            (e) => e.toEntity(
+              post: postResponses.where((post) => post.id == e.id).first,
+            ),
+          )
+          .toList();
       return fotos;
     } catch (e) {
       throw RepositoryException(e.toString());
@@ -24,7 +33,16 @@ class FotoRepositoryImpl implements FotoRepository {
   Future<List<Foto>> listarFotosPorAlbum(int albumId) async {
     try {
       final responses = await _dataSourceFotos.listarFotosPorAlbum(albumId);
-      final fotos = responses.map((e) => e.toEntitySemPostEAutor()).toList();
+      final postresponses = await Future.wait(
+        responses.map((foto) => _dataSourceFotos.selecionarPost(foto.id)),
+      );
+      final fotos = responses
+          .map(
+            (e) => e.toEntity(
+              post: postresponses.where((post) => post.id == e.id).first,
+            ),
+          )
+          .toList();
       return fotos;
     } catch (e) {
       throw RepositoryException(e.toString());

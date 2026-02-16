@@ -1,9 +1,9 @@
-import 'package:photo_album/core/util/string_comparator.dart';
 import 'package:photo_album/data/repositories/comentario_repository.dart';
 import 'package:photo_album/data/repositories/foto_repository.dart';
 import 'package:photo_album/domain/entities/comentario.dart';
 import 'package:photo_album/domain/entities/foto.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:string_similarity/string_similarity.dart';
 
 class FotoController {
   final FotoRepository _fotoRepository;
@@ -22,28 +22,15 @@ class FotoController {
     final lista = _todasFotos.value;
 
     if (termo.isEmpty) return lista;
-    final listaClassificada = lista.map((foto) {
-      int distancia;
-      if (foto.id.toString() == termo) {
-        distancia = -1;
-      } else {
-        distancia = StringComparator.compare(termo, foto.titulo.toLowerCase());
-        if (foto.titulo.toLowerCase().contains(termo)) {
-          distancia = distancia - 2;
-        }
-      }
-      return {'foto': foto, 'distancia': distancia};
-    }).toList();
-    listaClassificada.sort((a, b) {
-      final distA = a['distancia'] as int;
-      final distB = b['distancia'] as int;
-      return distA.compareTo(distB);
-    });
+    final listaOrdenada = lista
+    .map((foto) => {
+          'foto': foto,
+          'rating': StringSimilarity.compareTwoStrings(termo, foto.titulo)
+        })
+    .toList()
+  ..sort((a, b) => (b['rating'] as double).compareTo(a['rating'] as double));
 
-    return listaClassificada
-        .take(20)
-        .map((item) => item['foto'] as Foto)
-        .toList();
+return listaOrdenada.map((e) => e['foto'] as Foto).take(20).toList();
   });
 
   final isLoading = signal(false);

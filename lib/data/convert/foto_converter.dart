@@ -17,13 +17,4 @@ extension FotoConverter on FotoModelIn {
     );
   }
 
-  Foto toEntitySemPostEAutor() {
-    return Foto(
-      id: this.id,
-      titulo: this.title,
-      albumId: this.albumId,
-      imgGrande: this.url,
-      imgPequena: this.thumbnailUrl,
-    );
-  }
 }
