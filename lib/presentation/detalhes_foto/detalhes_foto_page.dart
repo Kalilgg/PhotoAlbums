@@ -101,17 +101,20 @@ class DetalheFotoPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Watch((_) {
+                            final album = controller.album.value;
+                            final autor = controller.autor.value;
+
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _buildInfoRow(
                                   Icons.photo_album, 
-                                  controller.album.value?.nome ?? 'Carregando...'
+                                  album?.nome ?? 'Carregando...'
                                 ),
                                 const SizedBox(height: 4),
                                 _buildInfoRow(
                                   Icons.person, 
-                                  controller.autor.value?.nome ?? 'Carregando...'
+                                  autor?.nome ?? 'Carregando...'
                                 ),
                               ],
                             );

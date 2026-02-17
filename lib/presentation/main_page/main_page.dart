@@ -139,18 +139,17 @@ class _MainPageState extends State<MainPage> {
                   ),
                 );
               }
-              final isLoadingMore = controller.isLoadingMore.value;
               return RefreshIndicator(
                 onRefresh: () async {
                   await controller.recarregarFotos();
                 },
                 child: ListView.builder(
                   padding: const EdgeInsets.only(bottom: 24),
-                  itemCount: fotos.length + (isLoadingMore ? 1 : 0),
+                  itemCount: fotos.length + (isLoading ? 1 : 0),
                   controller: controller.scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
-                    if (index == fotos.length && isLoadingMore) {
+                    if (index == fotos.length && isLoading) {
                       return const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),
                         child: Center(

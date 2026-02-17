@@ -26,7 +26,6 @@ class FotoController {
   final int _quantidade = 20;
   late final scrollController = ScrollController();
   final hasMore = signal(true);
-  final isLoadingMore = signal(false);
   final _todasFotos = signal<List<Foto>>([]);
   Signal termoBusca = signal('');
   Signal<bool> carregarMais = signal(false);
@@ -76,8 +75,8 @@ class FotoController {
 
   Signal<List<Comentario>> comentarios = signal([]);
 
-  final autor = signal<Autor?>(null);
-  final album = signal<Album?>(null);
+  Signal autor = signal<Autor?>(null);
+  Signal album = signal<Album?>(null);
 
   Future<void> carregarConteudo(int fotoId) async {
     await buscarAutor(fotoId);
@@ -87,21 +86,26 @@ class FotoController {
   Future<void> carregarFotos() async {
     isLoading.value = true;
     error.value = null;
-
     final resultado = await _fotoRepository.listar(_comeco, _quantidade);
-    _todasFotos.value = resultado;
     if (resultado.isEmpty) {
       error.value = "Nenhuma foto encontrada.";
       semFotos.value = true;
+      hasMore.value = false;
+      isLoading.value = false;
+      return;
     }
+    _todasFotos.value = [..._todasFotos.value, ...resultado];
     _comeco += _quantidade;
     isLoading.value = false;
   }
 
   void configurarScrollListener() {
     scrollController.addListener(() {
-      if (scrollController.position.pixels >=
-          scrollController.position.maxScrollExtent - 200) {
+      if (
+        (scrollController.position.maxScrollExtent * 0.50) <= scrollController.offset &&
+        hasMore.value &&
+        !isLoading.value
+      ) {
         carregarMais.value = true;
       } else {
         carregarMais.value = false;
@@ -110,22 +114,9 @@ class FotoController {
 
     effect(() {
       if (carregarMais.value) {
-        carregarMaisFotos();
+        carregarFotos();
       }
     });
-  }
-
-  Future<void> carregarMaisFotos() async {
-    if (!hasMore.value) return;
-    isLoadingMore.value = true;
-    final novosItens = await _fotoRepository.listar(_comeco, _quantidade);
-
-    if (novosItens.isEmpty) {
-      hasMore.value = false;
-    } else {
-      fotos.internalValue.addAll(novosItens);
-      _comeco += _quantidade;
-    }
   }
 
   void filtrar(String query) {
@@ -133,7 +124,8 @@ class FotoController {
   }
 
   Future<void> recarregarFotos() async {
-    final resultado = await _fotoRepository.listar(0, _quantidade);
+    _comeco = 0;
+    final resultado = await _fotoRepository.listar(_comeco, _quantidade);
     if (resultado.isEmpty) {
       error.value = "Nenhuma foto encontrada.";
     } else {
