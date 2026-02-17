@@ -18,8 +18,8 @@ class Endereco {
 }
 
 class Localizacao {
-  double latitude;
-  double longitude;
+  String latitude;
+  String longitude;
 
   Localizacao({
     required this.latitude,

@@ -39,35 +39,33 @@ class FotoController {
   }
 
   late final fotos = computed(() {
-
     int? termoNumerico = int.tryParse(termoBusca.value.toString().trim());
     final termo = termoBusca.value.trim().toLowerCase();
     final lista = _todasFotos.value;
-    
+
     if (lista.isEmpty) return lista;
     if (termo.isEmpty) return lista;
 
     if (termoNumerico != null) {
       return lista.where((foto) => foto.id == termoNumerico).take(20).toList();
-    }  
-      if (termo.isEmpty) return lista;
-      final listaOrdenada =
-          lista
-              .map(
-                (foto) => {
-                  'foto': foto,
-                  'rating': StringSimilarity.compareTwoStrings(
-                    termo,
-                    foto.titulo,
-                  ),
-                },
-              )
-              .toList()
-            ..sort(
-              (a, b) =>
-                  (b['rating'] as double).compareTo(a['rating'] as double),
-            );
-      return listaOrdenada.map((e) => e['foto'] as Foto).take(20).toList();
+    }
+    if (termo.isEmpty) return lista;
+    final listaOrdenada =
+        lista
+            .map(
+              (foto) => {
+                'foto': foto,
+                'rating': StringSimilarity.compareTwoStrings(
+                  termo,
+                  foto.titulo,
+                ),
+              },
+            )
+            .toList()
+          ..sort(
+            (a, b) => (b['rating'] as double).compareTo(a['rating'] as double),
+          );
+    return listaOrdenada.map((e) => e['foto'] as Foto).take(20).toList();
   });
 
   final isLoading = signal(false);
@@ -78,14 +76,17 @@ class FotoController {
   Signal autor = signal<Autor?>(null);
   Signal album = signal<Album?>(null);
 
-  Future<void> carregarConteudo(int fotoId) async {
-    await buscarAutor(fotoId);
-    await buscarAlbum(fotoId);
-  }
-
   Future<void> carregarFotos() async {
+    if(_comeco == 100) {
+      hasMore.value = false;
+      return;
+    };
+    if (!hasMore.value) return;
+    if (isLoading.value) return;
     isLoading.value = true;
     error.value = null;
+    await Future.delayed(Duration(milliseconds: 300));
+
     final resultado = await _fotoRepository.listar(_comeco, _quantidade);
     if (resultado.isEmpty) {
       error.value = "Nenhuma foto encontrada.";
@@ -101,19 +102,9 @@ class FotoController {
 
   void configurarScrollListener() {
     scrollController.addListener(() {
-      if (
-        (scrollController.position.maxScrollExtent * 0.50) <= scrollController.offset &&
-        hasMore.value &&
-        !isLoading.value
-      ) {
-        carregarMais.value = true;
-      } else {
-        carregarMais.value = false;
-      }
-    });
-
-    effect(() {
-      if (carregarMais.value) {
+      if ((scrollController.position.maxScrollExtent * 0.50) <=
+              scrollController.offset &&
+          hasMore.value) {
         carregarFotos();
       }
     });

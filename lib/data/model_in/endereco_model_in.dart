@@ -27,8 +27,8 @@ class EnderecoModelIn {
 }
 
 class LocalizacaoModelIn {
-  double latitude;
-  double longitude;
+  String latitude;
+  String longitude;
 
   LocalizacaoModelIn({
     required this.latitude,

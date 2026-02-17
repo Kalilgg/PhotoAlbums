@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:photo_album/domain/entities/comentario.dart';
+import 'package:photo_album/presentation/detalhes_foto/abrir_localizacao.dart';
+import 'package:photo_album/presentation/detalhes_foto/enviar_email.dart';
 import 'package:photo_album/presentation/envio_comentario/comentario_controller.dart';
 import 'package:photo_album/presentation/envio_comentario/envio_comentario_page.dart';
 import 'package:photo_album/presentation/detalhes_foto/foto_controller.dart';
@@ -7,23 +9,34 @@ import 'package:provider/provider.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:photo_album/domain/entities/foto.dart';
 
-class DetalheFotoPage extends StatelessWidget {
+class DetalheFotoPage extends StatefulWidget {
   final Foto foto;
 
   const DetalheFotoPage(this.foto, {super.key});
 
   @override
-  Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<FotoController>().carregarConteudo(foto.id);
-      context.read<ComentarioController>().carregarComentarios(foto.id);
-    });
+  State<DetalheFotoPage> createState() => _DetalheFotoPageState();
+}
 
+class _DetalheFotoPageState extends State<DetalheFotoPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<FotoController>().buscarAlbum(widget.foto.id);
+      context.read<FotoController>().buscarAutor(widget.foto.id);
+      context.read<ComentarioController>().carregarComentarios(widget.foto.id);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final controller = context.read<FotoController>();
     final comentarioController = context.read<ComentarioController>();
 
     return Scaffold(
-      backgroundColor: Colors.grey[100], 
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text(
           "Detalhes da Foto",
@@ -47,7 +60,9 @@ class DetalheFotoPage extends StatelessWidget {
             Card(
               margin: const EdgeInsets.all(16.0),
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               color: Colors.white,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -55,7 +70,7 @@ class DetalheFotoPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Hero(
-                      tag: 'foto_${foto.id}',
+                      tag: 'foto_${widget.foto.id}',
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: ConstrainedBox(
@@ -64,7 +79,7 @@ class DetalheFotoPage extends StatelessWidget {
                             maxHeight: 120,
                           ),
                           child: Image.network(
-                            foto.imgGrande,
+                            widget.foto.imgGrande,
                             width: 120,
                             height: 120,
                             fit: BoxFit.cover,
@@ -90,7 +105,7 @@ class DetalheFotoPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            foto.titulo,
+                            widget.foto.titulo,
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -101,20 +116,19 @@ class DetalheFotoPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Watch((_) {
-                            final album = controller.album.value;
-                            final autor = controller.autor.value;
-
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _buildInfoRow(
-                                  Icons.photo_album, 
-                                  album?.nome ?? 'Carregando...'
+                                  Icons.photo_album,
+                                  controller.album.value?.nome ??
+                                      'Carregando...',
                                 ),
                                 const SizedBox(height: 4),
                                 _buildInfoRow(
-                                  Icons.person, 
-                                  autor?.nome ?? 'Carregando...'
+                                  Icons.person,
+                                  controller.autor.value?.nome ??
+                                      'Carregando...',
                                 ),
                               ],
                             );
@@ -132,19 +146,50 @@ class DetalheFotoPage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () { /* Lógica do mapa */ },
+                      onPressed: () {
+                        AbrirLocalizacao.abrirLocalizacao(
+                          controller
+                                  .autor
+                                  .value
+                                  ?.endereco
+                                  .localizacao
+                                  .latitude ??
+                              0,
+                          controller
+                                  .autor
+                                  .value
+                                  ?.endereco
+                                  .localizacao
+                                  .longitude ??
+                              0,
+                        );
+                      },
                       icon: const Icon(Icons.map, size: 18),
-                      label: const Text("Ver no mapa", style: TextStyle(fontSize: 12)),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+                      label: const Text(
+                        "Ver no mapa",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () { /* Lógica de email */ },
+                      onPressed: () {
+                        EnviarEmail.enviaremail(
+                          controller.autor.value?.email ?? '',
+                        );
+                      },
                       icon: const Icon(Icons.email, size: 18),
-                      label: const Text("Enviar email", style: TextStyle(fontSize: 12)),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+                      label: const Text(
+                        "Enviar email",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -153,7 +198,8 @@ class DetalheFotoPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EnvioComentarioPage(fotoId: foto.id),
+                          builder: (context) =>
+                              EnvioComentarioPage(fotoId: widget.foto.id),
                         ),
                       );
                     },
@@ -164,7 +210,11 @@ class DetalheFotoPage extends StatelessWidget {
                         border: Border.all(color: Colors.blue),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.add_comment_outlined, color: Colors.blue, size: 20),
+                      child: const Icon(
+                        Icons.add_comment_outlined,
+                        color: Colors.blue,
+                        size: 20,
+                      ),
                     ),
                   ),
                 ],
@@ -179,19 +229,23 @@ class DetalheFotoPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   const Text(
+                  const Text(
                     "Descrição",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    foto.descricao,
-                    style: TextStyle(fontSize: 16, height: 1.5, color: Colors.grey[800]),
+                    widget.foto.descricao,
+                    style: TextStyle(
+                      fontSize: 16,
+                      height: 1.5,
+                      color: Colors.grey[800],
+                    ),
                   ),
                 ],
               ),
             ),
-             const Padding(
+            const Padding(
               padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               child: Divider(thickness: 1),
             ),
@@ -206,7 +260,8 @@ class DetalheFotoPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Watch((_) {
-                    final isLoading = comentarioController.isLoadingComentarios.value;
+                    final isLoading =
+                        comentarioController.isLoadingComentarios.value;
                     List<Comentario> comentarios = controller.comentarios.value;
                     if (isLoading) {
                       return const Center(
@@ -283,8 +338,13 @@ class DetalheFotoPage extends StatelessWidget {
                   radius: 16,
                   backgroundColor: Colors.blue[100],
                   child: Text(
-                    comentario.emailUsario?.characters.first.toUpperCase() ?? 'A',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue[900]),
+                    comentario.emailUsario?.characters.first.toUpperCase() ??
+                        'A',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue[900],
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -300,12 +360,9 @@ class DetalheFotoPage extends StatelessWidget {
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                       Text(
+                      Text(
                         comentario.titulo,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
