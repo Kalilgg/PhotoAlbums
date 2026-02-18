@@ -1,31 +1,47 @@
-# PhotoAlbums# photo_album
+# PhotoAlbums
 
-Projeto de testes em flutter com integração com API e deeplink para google gmail e google maps.
-O projeto consiste em um app mobile que traz um album de fotos compartilhados na nuvem, sendo possivel ver e interagir com elas.
+Projeto de teste desenvolvido em Flutter com integração de API REST e funcionalidades nativas de Deep Linking (para aplicativos de e-mail e mapas).
 
-![Protótipo do projeto](./assets/teste_tecnico.jpeg)
+O projeto consiste em um aplicativo móvel que simula um álbum de fotos compartilhado na nuvem, permitindo a visualização de detalhes, identificação de autores e interação com o conteúdo.
 
-## Getting Started
+![Prototipo do projeto](./assets/teste_tecnico.jpeg)
 
-Para começar a analisar este projeto é preciso ter conhecimento de 3 problemas principais relacionados a API escolhida.
+## Considerações sobre a API
 
-1. Relacionamento entre as Classes:
-Nesta api, foto e post se relacionam somente pelo usuário, não mantendo nenhum relacionamento direto entre si. Portanto, para fins didáticos foi levando em consideração a seguinte máxima: Uma foto é considerada um post, isto é, se os ids são iguais eles são considerados os mesmo objetos.
+Para analisar e executar este projeto corretamente, é necessário compreender três limitações técnicas relacionadas à API pública utilizada (JSONPlaceholder):
 
-2. Imagens: O domínio em que estavam armazenadas as imagens da API caiu, portanto nenhuma delas carregará.
+1. **Relacionamento entre Classes:**
+   Nesta API, as entidades Foto e Post se relacionam apenas através do Usuário, não existindo um vínculo direto entre si. Para fins didáticos e de demonstração, o projeto adota a premissa de igualdade de IDs: uma foto é tratada como correspondente a um post se ambos compartilharem o mesmo ID.
 
-3. Limite de Dados: A API tem um número limitado de dados. 5000 imagens, 100 posts, 10 usuários, 500 comentários e 100 albúmns. Portanto, a lista de fotos so é carregada até a 100º e os usuários estão presentes somente ate a 10º foto.
+2. **Instabilidade das Imagens:**
+   O domínio onde as imagens da API são hospedadas apresenta instabilidades frequentes. O aplicativo possui tratamento de erros para exibir um ícone substituto caso o carregamento da imagem falhe.
 
-## Estrutura do projeto
-Para este projeto utilizou-se as sequintes tecnologias.
-- Signals: Para gerenciamento de estado reativo.
-- Provider: Para injeção de dependências.
-- Dio e Native_Dio_Adapter: Cliente HTTP para requisições.
-- Url Launcher: Para DeepLink
-- Logger
-- String Similarity
+3. **Limite de Dados:**
+   Embora existam 5000 fotos, a API fornece apenas 100 posts e 100 álbuns. Para garantir a integridade dos dados cruzados (Foto + Post + Álbum), a listagem de fotos foi intencionalmente limitada aos primeiros 100 itens.
 
-As Estrutura do projeto consiste em separar as responsabilidades em camadas. 
-- Data: Lida com requisições e conversões de json.
-- Domain: Contém as entidades e regras de negócio da aplicação.
-- Presentation: Respnsável pela UI/UX.
+## Tecnologias Utilizadas
+
+O projeto foi construído utilizando as seguintes bibliotecas e ferramentas:
+
+- **Signals:** Gerenciamento de estado reativo.
+- **Provider:** Injeção de dependências.
+- **Dio e Native_Dio_Adapter:** Cliente HTTP otimizado para requisições nativas.
+- **Url Launcher:** Implementação de Deep Linking (abertura de apps externos).
+- **Logger:** Utilitário para logs e depuração.
+- **String Similarity:** Algoritmo para filtragem e busca aproximada de texto.
+
+## Estrutura do Projeto
+
+A arquitetura do projeto segue o princípio de separação de responsabilidades em camadas distintas:
+
+- **Domain:** Camada central que contém as Entidades e as regras de negócio da aplicação. É independente de bibliotecas externas ou frameworks.
+- **Data:** Responsável pela comunicação com fontes externas. Lida com as requisições HTTP, implementação dos repositórios e conversão de JSON (Models).
+- **Presentation:** Responsável pela Interface do Usuário (UI/UX), contendo as Páginas, Widgets e Controladores de estado.
+
+## Funcionalidades Implementadas
+
+- Listagem de fotos com paginação (Scroll Infinito).
+- Busca de fotos com filtro por similaridade de texto.
+- Visualização de detalhes com carregamento assíncrono de dados do Autor e Álbum.
+- Integração com mapas: Abre a localização do autor no aplicativo de mapas padrão.
+- Integração com e-mail: Abre o aplicativo de e-mail padrão com destinatário e assunto preenchidos.
