@@ -85,7 +85,7 @@ class FotoController {
     if (isLoading.value) return;
     isLoading.value = true;
     error.value = null;
-    await Future.delayed(Duration(milliseconds: 300));
+    await Future.delayed(Duration(milliseconds: 200));
 
     final resultado = await _fotoRepository.listar(_comeco, _quantidade);
     if (resultado.isEmpty) {
