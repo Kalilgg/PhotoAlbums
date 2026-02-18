@@ -1,4 +1,4 @@
-import 'package:photo_album/core/network/dio_data_source.dart';
+import 'package:photo_album/data/datasource/dio_data_source.dart';
 import 'package:photo_album/data/datasource/comentario_data_source.dart';
 import 'package:photo_album/data/model_in/comentario_model_in.dart';
 import 'package:photo_album/data/model_out/comentario_model_out.dart';

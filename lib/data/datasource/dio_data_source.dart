@@ -49,9 +49,6 @@ abstract class DioDataSource {
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       );
-      print(path);
-      print(queryParameters);
-      print(response.data);
       return response.data ?? [];
     } catch (e) {
       throw _treatException(e);
